@@ -40,7 +40,7 @@ import {
 
 import { FaJava } from "react-icons/fa";
 
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import React from "react";
 
 interface GitHubData {
@@ -249,7 +249,7 @@ export default function GitHubStats() {
                     <div className="flex items-center justify-between">
                       <GitFork className="h-6 w-6 text-slate-400" />
                       <span className="text-lg font-bold text-white">
-                        Total Stars Earned
+                        Total Forks Earned
                       </span>
                     </div>
                     <h3 className="text-3xl font-bold mt-4 text-white">
@@ -265,11 +265,11 @@ export default function GitHubStats() {
                     <div className="flex items-center justify-between">
                       <Calendar className="h-6 w-6 text-slate-400" />
                       <span className="text-lg font-bold text-white">
-                        Total Stars Earned
+                        Total Active days
                       </span>
                     </div>
                     <h3 className="text-xl font-bold mt-4 text-white">
-                      {data.activeDays}
+                      {data.mostActiveDay}
                     </h3>
                     <p className="text-sm text-white">Most Active Days</p>
                   </CardContent>
