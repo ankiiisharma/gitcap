@@ -12,6 +12,7 @@ import {
   CheckCircle,
   Loader2,
   Laptop,
+  Tag,
 } from "lucide-react";
 
 import {
@@ -62,6 +63,15 @@ interface GitHubData {
     usagePercentage: string;
   }>;
 }
+
+const getCommitTag = (commits: number): string => {
+  if (commits > 100) return "Code Conqueror 🏆";
+  if (commits > 80) return "Commit Wizard ✨";
+  if (commits > 50) return "Prolific Contributor 🚀";
+  if (commits > 20) return "Active Coder 💻";
+  if (commits > 10) return "Rising Developer 🌱";
+  return "Newbie 🔰";
+};
 
 const languageIcons: Record<
   string,
@@ -290,6 +300,24 @@ export default function GitHubStats() {
                       {data.commits}
                     </h3>
                     <p className="text-sm text-white">Total Commits</p>
+                  </CardContent>
+                </Card>
+
+                {/* Tag*/}
+                <Card className="bg-gray-800 border border-gray-600 hover:border-blue-300 transition-all duration-300">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <Tag className="h-6 w-6 text-slate-400" />
+                      <span className="text-lg font-bold text-white">
+                        Your Tag
+                      </span>
+                    </div>
+                    <h3 className="text-3xl font-bold mt-4 text-white">
+                      {getCommitTag(data.commits)}
+                    </h3>
+                    <p className="text-sm text-white">
+                      this defines your aura.
+                    </p>
                   </CardContent>
                 </Card>
               </div>
