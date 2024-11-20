@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -53,25 +52,11 @@ const LanguageIcons: Record<
   "C++": SiCplusplus,
 };
 
-const container = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1,
-    },
-  },
-};
-
-const item = {
-  hidden: { y: 20, opacity: 0 },
-  show: { y: 0, opacity: 1 },
-};
-
 export default function Component() {
   const [username, setUsername] = useState("");
   const [data, setData] = useState<GitHubData | null>(null);
   const [loading, setLoading] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -80,6 +65,7 @@ export default function Component() {
       const response = await fetch(`/api/github/${username}`);
       const data = await response.json();
       setData(data);
+      setIsVisible(true);
       console.log(data);
     } catch (error) {
       console.error(error);
@@ -96,6 +82,128 @@ export default function Component() {
       </CardContent>
     </Card>
   );
+
+  const cards = data ? (
+    <div
+      className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 transition-opacity duration-500 ${
+        isVisible ? "opacity-100" : "opacity-0"
+      }`}
+    >
+      <Card className="bg-zinc-800 h-[200px] transition-transform duration-300 hover:scale-105">
+        <CardContent className="p-6">
+          <div className="flex items-center justify-between mb-4">
+            <FileCode className="h-6 w-6 text-zinc-400" />
+            <span className="text-sm text-zinc-400">Most Used Languages</span>
+          </div>
+          <div className="space-y-2">
+            {data.topLanguages.slice(0, 3).map((lang, index) => {
+              const Icon = LanguageIcons[lang.language] || FileCode;
+              return (
+                <div key={index} className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Icon className="h-4 w-4 text-zinc-300" />
+                    <span className="text-zinc-300">{lang.language}</span>
+                  </div>
+                  <span className="text-zinc-400">{lang.usagePercentage}%</span>
+                </div>
+              );
+            })}
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="bg-zinc-800 h-[200px] transition-transform duration-300 hover:scale-105">
+        <CardContent className="p-6 flex flex-col justify-between h-full">
+          <div className="flex items-center justify-between">
+            <Star className="h-6 w-6 text-zinc-400" />
+            <span className="text-3xl font-bold text-zinc-100">
+              {data.stars}
+            </span>
+          </div>
+          <p className="text-sm text-zinc-400">Total Stars</p>
+        </CardContent>
+      </Card>
+
+      <Card className="bg-zinc-800 h-[200px] transition-transform duration-300 hover:scale-105">
+        <CardContent className="p-6 flex flex-col justify-between h-full">
+          <div className="flex items-center justify-between">
+            <GitFork className="h-6 w-6 text-zinc-400" />
+            <span className="text-3xl font-bold text-zinc-100">
+              {data.forks}
+            </span>
+          </div>
+          <p className="text-sm text-zinc-400">Total Forks</p>
+        </CardContent>
+      </Card>
+
+      <Card className="bg-zinc-800 h-[200px] transition-transform duration-300 hover:scale-105">
+        <CardContent className="p-6 flex flex-col justify-between h-full">
+          <div className="flex items-center justify-between">
+            <Calendar className="h-6 w-6 text-zinc-400" />
+            <span className="text-sm text-zinc-400">Most Active Day</span>
+          </div>
+          <p className="text-xl text-zinc-100">{data.mostActiveDay}</p>
+          <p className="text-sm text-zinc-400">
+            What did you cook that day? 🤔
+          </p>
+        </CardContent>
+      </Card>
+
+      <Card className="bg-zinc-800 h-[200px] transition-transform duration-300 hover:scale-105">
+        <CardContent className="p-6 flex flex-col justify-between h-full">
+          <div className="flex items-center justify-between">
+            <Eye className="h-6 w-6 text-zinc-400" />
+            <span className="text-3xl font-bold text-zinc-100">
+              {data.totalWatchers}
+            </span>
+          </div>
+          <p className="text-sm text-zinc-400">Total Watchers</p>
+        </CardContent>
+      </Card>
+
+      <Card className="bg-zinc-800 h-[200px] transition-transform duration-300 hover:scale-105">
+        <CardContent className="p-6">
+          <div className="flex items-center justify-between mb-4">
+            <GitCommit className="h-6 w-6 text-zinc-400" />
+            <span className="text-sm text-zinc-400">Contribution Stats</span>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <p className="text-2xl font-bold text-zinc-100">
+                {data.totalCommits}
+              </p>
+              <p className="text-sm text-zinc-400">Total Commits</p>
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-zinc-100">
+                {data.totalRepos}
+              </p>
+              <p className="text-sm text-zinc-400">Repositories</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="bg-zinc-800 h-[200px] transition-transform duration-300 hover:scale-105">
+        <CardContent className="p-6">
+          <div className="flex items-center justify-between mb-4">
+            <GitPullRequest className="h-6 w-6 text-zinc-400" />
+            <CircleDot className="h-6 w-6 text-zinc-400" />
+          </div>
+          <div className="space-y-2">
+            <div className="flex justify-between">
+              <span className="text-sm text-zinc-400">PRs Created</span>
+              <span className="text-zinc-100">{data.pullRequestsCreated}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-sm text-zinc-400">Issues Opened</span>
+              <span className="text-zinc-100">{data.issuesOpened}</span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  ) : null;
 
   return (
     <div className="min-h-screen bg-zinc-900 text-zinc-100 py-12 px-4 sm:px-6 lg:px-8">
@@ -133,165 +241,7 @@ export default function Component() {
             ))}
           </div>
         ) : (
-          data && (
-            <motion.div
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-              variants={container}
-              initial="hidden"
-              animate="show"
-            >
-              <motion.div variants={item}>
-                <Card className="bg-zinc-800 h-[200px]">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <FileCode className="h-6 w-6 text-zinc-400" />
-                      <span className="text-sm text-zinc-400">
-                        Most Used Languages
-                      </span>
-                    </div>
-                    <div className="space-y-2">
-                      {data.topLanguages.slice(0, 3).map((lang, index) => {
-                        const Icon = LanguageIcons[lang.language] || FileCode;
-                        return (
-                          <div
-                            key={index}
-                            className="flex items-center justify-between"
-                          >
-                            <div className="flex items-center gap-2">
-                              <Icon className="h-4 w-4 text-zinc-300" />
-                              <span className="text-zinc-300">
-                                {lang.language}
-                              </span>
-                            </div>
-                            <span className="text-zinc-400">
-                              {lang.usagePercentage}%
-                            </span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-
-              <motion.div variants={item}>
-                <Card className="bg-zinc-800 h-[200px]">
-                  <CardContent className="p-6 flex flex-col justify-between h-full">
-                    <div className="flex items-center justify-between">
-                      <Star className="h-6 w-6 text-zinc-400" />
-                      <span className="text-3xl font-bold text-zinc-100">
-                        {data.stars}
-                      </span>
-                    </div>
-                    <p className="text-sm text-zinc-400">Total Stars</p>
-                  </CardContent>
-                </Card>
-              </motion.div>
-
-              <motion.div variants={item}>
-                <Card className="bg-zinc-800 h-[200px]">
-                  <CardContent className="p-6 flex flex-col justify-between h-full">
-                    <div className="flex items-center justify-between">
-                      <GitFork className="h-6 w-6 text-zinc-400" />
-                      <span className="text-3xl font-bold text-zinc-100">
-                        {data.forks}
-                      </span>
-                    </div>
-                    <p className="text-sm text-zinc-400">Total Forks</p>
-                  </CardContent>
-                </Card>
-              </motion.div>
-
-              <motion.div variants={item}>
-                <Card className="bg-zinc-800 h-[200px]">
-                  <CardContent className="p-6 flex flex-col justify-between h-full">
-                    <div className="flex items-center justify-between">
-                      <Calendar className="h-6 w-6 text-zinc-400" />
-                      <span className="text-sm text-zinc-400">
-                        Most Active Day
-                      </span>
-                    </div>
-                    <p className="text-xl text-zinc-100">
-                      {data.mostActiveDay}
-                    </p>
-                    <p className="text-sm text-zinc-400">
-                      What did you cook that day? 🤔
-                    </p>
-                  </CardContent>
-                </Card>
-              </motion.div>
-
-              <motion.div variants={item}>
-                <Card className="bg-zinc-800 h-[200px]">
-                  <CardContent className="p-6 flex flex-col justify-between h-full">
-                    <div className="flex items-center justify-between">
-                      <Eye className="h-6 w-6 text-zinc-400" />
-                      <span className="text-3xl font-bold text-zinc-100">
-                        {data.totalWatchers}
-                      </span>
-                    </div>
-                    <p className="text-sm text-zinc-400">Total Watchers</p>
-                  </CardContent>
-                </Card>
-              </motion.div>
-
-              <motion.div variants={item}>
-                <Card className="bg-zinc-800 h-[200px]">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <GitCommit className="h-6 w-6 text-zinc-400" />
-                      <span className="text-sm text-zinc-400">
-                        Contribution Stats
-                      </span>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <p className="text-2xl font-bold text-zinc-100">
-                          {data.totalCommits}
-                        </p>
-                        <p className="text-sm text-zinc-400">Total Commits</p>
-                      </div>
-                      <div>
-                        <p className="text-2xl font-bold text-zinc-100">
-                          {data.totalRepos}
-                        </p>
-                        <p className="text-sm text-zinc-400">Repositories</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-
-              <motion.div variants={item}>
-                <Card className="bg-zinc-800 h-[200px]">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <GitPullRequest className="h-6 w-6 text-zinc-400" />
-                      <CircleDot className="h-6 w-6 text-zinc-400" />
-                    </div>
-                    <div className="space-y-2">
-                      <div className="flex justify-between">
-                        <span className="text-sm text-zinc-400">
-                          PRs Created
-                        </span>
-                        <span className="text-zinc-100">
-                          {data.pullRequestsCreated}
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-sm text-zinc-400">
-                          Issues Opened
-                        </span>
-                        <span className="text-zinc-100">
-                          {data.issuesOpened}
-                        </span>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            </motion.div>
-          )
+          cards
         )}
       </div>
     </div>
