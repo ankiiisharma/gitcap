@@ -52,14 +52,19 @@ export async function GET(
     context: RouteParams
 ): Promise<NextResponse> {
     try {
-        // Await the params nextjs 15!!!!!
+        // Await the params Next.js 15!!!!!
         const { username } = await context.params;
+
+
+        const { data: user } = await octokit.users.getByUsername({ username });
+
 
         const { data: repos } = await octokit.repos.listForUser({
             username,
             sort: "updated",
             per_page: 100,
         });
+
 
         const { data: events } = await octokit.activity.listPublicEventsForUser({
             username,
@@ -123,6 +128,8 @@ export async function GET(
         const mostActiveRepo = Object.entries(commitsByRepo).sort((a, b) => b[1] - a[1])[0]?.[0] || "N/A";
 
         return NextResponse.json({
+            username: user.login,
+            avatarUrl: user.avatar_url,
             totalRepos,
             stars,
             forks,

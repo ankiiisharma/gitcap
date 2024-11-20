@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 * {
-  font-family: space mono;
+  font-family: "Inter", sans-serif;
 }
 
 @layer base {

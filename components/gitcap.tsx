@@ -8,41 +8,62 @@ import {
   Github,
   Star,
   GitFork,
-  Eye,
   Calendar,
-  GitCommit,
-  GitPullRequest,
-  CircleDot,
+  CheckCircle,
   Loader2,
-  FileCode,
+  Laptop,
 } from "lucide-react";
+
 import {
   SiJavascript,
   SiPython,
   SiTypescript,
   SiCplusplus,
+  SiGo,
+  SiHtml5,
+  SiCss3,
+  SiDocker,
+  SiRubygems,
+  SiPhp,
+  SiKotlin,
+  SiSwift,
+  SiRust,
+  SiScala,
+  SiDart,
+  SiElixir,
+  SiLua,
+  SiR,
+  SiShell,
+  SiHaskell,
+  SiJulia,
 } from "react-icons/si";
 
+import { FaJava } from "react-icons/fa";
+
+import { motion } from "framer-motion";
+import React from "react";
+
 interface GitHubData {
-  totalRepos: number;
+  username: string;
+  avatar: string;
   stars: number;
   forks: number;
-  totalWatchers: number;
-  topLanguages: {
+  activeDays: number;
+  commits: number;
+  repositories: number;
+  pullRequests: number;
+  issuesOpened: number;
+  issuesClosed: number;
+  mostActiveDay: string;
+  mostUsedLang: string;
+  topLanguages: Array<{
     language: string;
     reposCount: number;
     usagePercentage: string;
-  }[];
-  mostActiveDay: string;
-  mostActiveRepo: string;
-  totalCommits: number;
-  pullRequestsCreated: number;
-  pullRequestsMerged: number;
-  issuesOpened: number;
-  issuesClosed: number;
+  }>;
 }
 
-const LanguageIcons: Record<
+const languageIcons: Record<
   string,
   React.ComponentType<{ className?: string }>
 > = {
@@ -50,13 +71,31 @@ const LanguageIcons: Record<
   Python: SiPython,
   TypeScript: SiTypescript,
   "C++": SiCplusplus,
+  Go: SiGo,
+  HTML: SiHtml5,
+  CSS: SiCss3,
+  Docker: SiDocker,
+  Java: FaJava,
+  Ruby: SiRubygems,
+  PHP: SiPhp,
+  Kotlin: SiKotlin,
+  Swift: SiSwift,
+  Rust: SiRust,
+  Scala: SiScala,
+  Dart: SiDart,
+  Elixir: SiElixir,
+  Lua: SiLua,
+  R: SiR,
+  Shell: SiShell,
+  Haskell: SiHaskell,
+  Julia: SiJulia,
+  TypeScriptIcon: SiTypescript,
 };
 
-export default function Component() {
+export default function GitHubStats() {
   const [username, setUsername] = useState("");
   const [data, setData] = useState<GitHubData | null>(null);
   const [loading, setLoading] = useState(false);
-  const [isVisible, setIsVisible] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -64,9 +103,26 @@ export default function Component() {
     try {
       const response = await fetch(`/api/github/${username}`);
       const data = await response.json();
-      setData(data);
-      setIsVisible(true);
-      console.log(data);
+
+      // Map API response to GitHubData structure
+      const mappedData: GitHubData = {
+        username: data.username,
+        avatar: data.avatarUrl,
+        stars: data.stars,
+        forks: data.forks,
+        activeDays: data.mostActiveDay ? parseInt(data.mostActiveDay) : 0,
+        commits: data.totalCommits,
+        repositories: data.totalRepos,
+        pullRequests: data.pullRequestsCreated || 0,
+        issuesOpened: data.issuesOpened || 0,
+        issuesClosed: data.issuesClosed || 0,
+        mostActiveDay: data.mostActiveDay || "N/A",
+        mostUsedLang: data.topLanguages[0]?.language || "N/A",
+        topLanguages: data.topLanguages || [],
+      };
+
+      setData(mappedData);
+      console.log(mappedData);
     } catch (error) {
       console.error(error);
     } finally {
@@ -75,142 +131,20 @@ export default function Component() {
   };
 
   const SkeletonCard = () => (
-    <Card className="bg-zinc-800/50 h-[200px]">
-      <CardContent className="p-6">
-        <div className="h-4 w-1/3 bg-zinc-700 rounded animate-pulse mb-4" />
-        <div className="h-8 w-1/2 bg-zinc-700 rounded animate-pulse" />
-      </CardContent>
-    </Card>
+    <div className="bg-gray-800/50 h-[200px] p-6 rounded-md animate-pulse">
+      <div className="h-4 w-1/3 bg-gray-700 rounded mb-4" />
+      <div className="h-8 w-1/2 bg-gray-700 rounded" />
+    </div>
   );
 
-  const cards = data ? (
-    <div
-      className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 transition-opacity duration-500 ${
-        isVisible ? "opacity-100" : "opacity-0"
-      }`}
-    >
-      <Card className="bg-zinc-800 h-[200px] transition-transform duration-300 hover:scale-105">
-        <CardContent className="p-6">
-          <div className="flex items-center justify-between mb-4">
-            <FileCode className="h-6 w-6 text-zinc-400" />
-            <span className="text-sm text-zinc-400">Most Used Languages</span>
-          </div>
-          <div className="space-y-2">
-            {data.topLanguages.slice(0, 3).map((lang, index) => {
-              const Icon = LanguageIcons[lang.language] || FileCode;
-              return (
-                <div key={index} className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Icon className="h-4 w-4 text-zinc-300" />
-                    <span className="text-zinc-300">{lang.language}</span>
-                  </div>
-                  <span className="text-zinc-400">{lang.usagePercentage}%</span>
-                </div>
-              );
-            })}
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card className="bg-zinc-800 h-[200px] transition-transform duration-300 hover:scale-105">
-        <CardContent className="p-6 flex flex-col justify-between h-full">
-          <div className="flex items-center justify-between">
-            <Star className="h-6 w-6 text-zinc-400" />
-            <span className="text-3xl font-bold text-zinc-100">
-              {data.stars}
-            </span>
-          </div>
-          <p className="text-sm text-zinc-400">Total Stars</p>
-        </CardContent>
-      </Card>
-
-      <Card className="bg-zinc-800 h-[200px] transition-transform duration-300 hover:scale-105">
-        <CardContent className="p-6 flex flex-col justify-between h-full">
-          <div className="flex items-center justify-between">
-            <GitFork className="h-6 w-6 text-zinc-400" />
-            <span className="text-3xl font-bold text-zinc-100">
-              {data.forks}
-            </span>
-          </div>
-          <p className="text-sm text-zinc-400">Total Forks</p>
-        </CardContent>
-      </Card>
-
-      <Card className="bg-zinc-800 h-[200px] transition-transform duration-300 hover:scale-105">
-        <CardContent className="p-6 flex flex-col justify-between h-full">
-          <div className="flex items-center justify-between">
-            <Calendar className="h-6 w-6 text-zinc-400" />
-            <span className="text-sm text-zinc-400">Most Active Day</span>
-          </div>
-          <p className="text-xl text-zinc-100">{data.mostActiveDay}</p>
-          <p className="text-sm text-zinc-400">
-            What did you cook that day? 🤔
-          </p>
-        </CardContent>
-      </Card>
-
-      <Card className="bg-zinc-800 h-[200px] transition-transform duration-300 hover:scale-105">
-        <CardContent className="p-6 flex flex-col justify-between h-full">
-          <div className="flex items-center justify-between">
-            <Eye className="h-6 w-6 text-zinc-400" />
-            <span className="text-3xl font-bold text-zinc-100">
-              {data.totalWatchers}
-            </span>
-          </div>
-          <p className="text-sm text-zinc-400">Total Watchers</p>
-        </CardContent>
-      </Card>
-
-      <Card className="bg-zinc-800 h-[200px] transition-transform duration-300 hover:scale-105">
-        <CardContent className="p-6">
-          <div className="flex items-center justify-between mb-4">
-            <GitCommit className="h-6 w-6 text-zinc-400" />
-            <span className="text-sm text-zinc-400">Contribution Stats</span>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <p className="text-2xl font-bold text-zinc-100">
-                {data.totalCommits}
-              </p>
-              <p className="text-sm text-zinc-400">Total Commits</p>
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-zinc-100">
-                {data.totalRepos}
-              </p>
-              <p className="text-sm text-zinc-400">Repositories</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card className="bg-zinc-800 h-[200px] transition-transform duration-300 hover:scale-105">
-        <CardContent className="p-6">
-          <div className="flex items-center justify-between mb-4">
-            <GitPullRequest className="h-6 w-6 text-zinc-400" />
-            <CircleDot className="h-6 w-6 text-zinc-400" />
-          </div>
-          <div className="space-y-2">
-            <div className="flex justify-between">
-              <span className="text-sm text-zinc-400">PRs Created</span>
-              <span className="text-zinc-100">{data.pullRequestsCreated}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-sm text-zinc-400">Issues Opened</span>
-              <span className="text-zinc-100">{data.issuesOpened}</span>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  ) : null;
-
   return (
-    <div className="min-h-screen bg-zinc-900 text-zinc-100 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-gray-900 text-white py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-5xl mx-auto">
         <div className="flex flex-col items-center justify-center mb-12">
-          <Github className="h-16 w-16 mb-4 text-zinc-100" />
-          <h1 className="text-4xl font-bold mb-8 text-center">Gitcap</h1>
+          <Github className="h-16 w-16 mb-4 text-white" />
+          <h1 className="text-5xl font-bold mb-8 text-center text-blue-400">
+            Gitcap
+          </h1>
 
           <form onSubmit={handleSubmit} className="flex gap-4 w-full max-w-md">
             <Input
@@ -218,12 +152,12 @@ export default function Component() {
               placeholder="Enter GitHub username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="flex-1 bg-zinc-800 border-zinc-700 text-zinc-100 placeholder-zinc-400"
+              className="flex-1 bg-gray-800 border-gray-700 text-white placeholder-gray-400"
             />
             <Button
               type="submit"
               disabled={loading}
-              className="bg-zinc-700 hover:bg-zinc-600"
+              className="bg-blue-600 hover:bg-blue-500 transition-colors duration-300"
             >
               {loading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -241,7 +175,124 @@ export default function Component() {
             ))}
           </div>
         ) : (
-          cards
+          data && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+            >
+              <div className="flex flex-col items-center text-center mb-8">
+                <img
+                  src={data.avatar}
+                  alt={`${data.username}'s avatar`}
+                  className="w-24 h-24 rounded-full mb-4 border border-blue-500"
+                />
+                <h2 className="text-3xl font-bold text-blue-300">
+                  Hey {data.username},
+                </h2>
+                <p className="text-lg text-gray-200">
+                  Thanks for visiting! Hope you have a great year ahead! 🎉
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {/* Top 3 Languages Card */}
+                <Card className="bg-gray-800 border border-gray-600 hover:border-blue-300 transition-all duration-300">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <Laptop className="h-6 w-6 text-slate-400" />
+                      <span className="text-lg font-bold text-white">
+                        Most Used Languages
+                      </span>
+                    </div>
+
+                    <div className="flex flex-col gap-4 mt-4">
+                      {data.topLanguages.slice(0, 3).map((lang, index) => {
+                        const Icon = languageIcons[lang.language]; // Get the correct icon based on the language name
+                        return (
+                          <div
+                            key={index}
+                            className="flex items-center justify-between text-white"
+                          >
+                            {/* Display the language icon */}
+                            {Icon && (
+                              <Icon className="h-6 w-6 text-blue-400 mr-2" />
+                            )}
+                            <span>{lang.language}</span>
+                            <span>{lang.usagePercentage} %</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Total Stars Card */}
+                <Card className="bg-gray-800 border border-gray-600 hover:border-blue-300 transition-all duration-300">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <Star className="h-6 w-6 text-yellow-400" />
+                      <span className="text-lg font-bold text-white">
+                        Total Stars Earned
+                      </span>
+                    </div>
+                    <h3 className="text-3xl font-bold mt-4 text-white">
+                      {data.stars}
+                    </h3>
+                    <p className="text-sm text-white">Total Stars</p>
+                  </CardContent>
+                </Card>
+
+                {/* Total Forks Card */}
+                <Card className="bg-gray-800 border border-gray-600 hover:border-blue-300 transition-all duration-300">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <GitFork className="h-6 w-6 text-slate-400" />
+                      <span className="text-lg font-bold text-white">
+                        Total Stars Earned
+                      </span>
+                    </div>
+                    <h3 className="text-3xl font-bold mt-4 text-white">
+                      {data.forks}
+                    </h3>
+                    <p className="text-sm text-white">Total Forks</p>
+                  </CardContent>
+                </Card>
+
+                {/* Most Active Days Card */}
+                <Card className="bg-gray-800 border border-gray-600 hover:border-blue-300 transition-all duration-300">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <Calendar className="h-6 w-6 text-slate-400" />
+                      <span className="text-lg font-bold text-white">
+                        Total Stars Earned
+                      </span>
+                    </div>
+                    <h3 className="text-xl font-bold mt-4 text-white">
+                      {data.activeDays}
+                    </h3>
+                    <p className="text-sm text-white">Most Active Days</p>
+                  </CardContent>
+                </Card>
+
+                {/* Total Commits Card */}
+                <Card className="bg-gray-800 border border-gray-600 hover:border-blue-300 transition-all duration-300">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <CheckCircle className="h-6 w-6 text-slate-400" />
+                      <span className="text-lg font-bold text-white">
+                        Total Stars Earned
+                      </span>
+                    </div>
+                    <h3 className="text-3xl font-bold mt-4 text-white">
+                      {data.commits}
+                    </h3>
+                    <p className="text-sm text-white">Total Commits</p>
+                  </CardContent>
+                </Card>
+              </div>
+            </motion.div>
+          )
         )}
       </div>
     </div>
