@@ -283,7 +283,7 @@ export default function GitHubStats() {
                     <div className="flex items-center justify-between">
                       <CheckCircle className="h-6 w-6 text-slate-400" />
                       <span className="text-lg font-bold text-white">
-                        Total Stars Earned
+                        Total Commits
                       </span>
                     </div>
                     <h3 className="text-3xl font-bold mt-4 text-white">
