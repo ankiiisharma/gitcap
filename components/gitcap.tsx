@@ -271,7 +271,9 @@ export default function GitHubStats() {
                     <h3 className="text-xl font-bold mt-4 text-white">
                       {data.mostActiveDay}
                     </h3>
-                    <p className="text-sm text-white">Most Active Days</p>
+                    <p className="text-sm text-white">
+                      What did you cook that day? 🤔
+                    </p>
                   </CardContent>
                 </Card>
 
